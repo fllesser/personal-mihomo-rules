@@ -46,5 +46,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.0.0 --title "Ruleset Release v1.0.0" --notes "Automated release for converted ruleset"
+          gh release create v1.0.0 --title "Ruleset Release" --notes "Automated release for converted ruleset"
           gh release upload v1.0.0 *.mrs
