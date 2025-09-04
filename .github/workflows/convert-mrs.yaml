@@ -30,21 +30,14 @@ jobs:
           ./mihomo convert-ruleset domain yaml hkban-proxy.yaml hkban-proxy.mrs
           ./mihomo convert-ruleset domain yaml reject.yaml reject.mrs
 
-      - name: Delete existing Release (if exists)
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # 使用 GitHub CLI 删除指定标签的 Release（如果存在）
-          if gh release view v1.0.0 --repo ${{ github.repository }} > /dev/null 2>&1; then
-            gh release delete v1.0.0 --yes --cleanup-tag
-            echo "Deleted existing release v1.0.0"
-          else
-            echo "No existing release v1.0.0 found"
-          fi
-
-      - name: Create new Release and upload assets
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create v1.0.0 --title "Ruleset Release" --notes "Automated release for converted ruleset"
-          gh release upload v1.0.0 *.mrs
+      - name: Update Release (Replace Assets)
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true # 允许更新现有Release
+          tag: "v1.0.0" # 指定你要更新的Release的标签
+          name: "Ruleset Release" # Release的名称
+          draft: false # 明确指定为非草稿
+          prerelease: false # 明确指定为非预发布
+          artifacts: "*.mrs" # 上传所有.mrs文件
+          body: "Automatically updated ruleset, Generated from commit ${{ github.sha }}."
+          token: ${{ secrets.GITHUB_TOKEN }}
