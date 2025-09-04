@@ -30,14 +30,21 @@ jobs:
           ./mihomo convert-ruleset domain yaml hkban-proxy.yaml hkban-proxy.mrs
           ./mihomo convert-ruleset domain yaml reject.yaml reject.mrs
 
+      - name: Get current time
+        uses: josStorer/get-current-time@v2.1.2 # 使用 Action 获取当前时间
+        id: current-time # 为此步骤设置一个ID，便于后续引用
+        with:
+          format: YYYY-MM-DD HH:mm:ss # 指定时间格式，遵循 Moment.js 语法
+          utcOffset: "+8" # 可选，设置UTC偏移，例如东八区
+
       - name: Update Release (Replace Assets)
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true # 允许更新现有Release
           tag: "v1.0.0" # 指定你要更新的Release的标签
-          name: "Ruleset Release" # Release的名称
+          name: "Ruleset Release ${{ steps.current-time.outputs.formattedTime }}" # Release的名称
           draft: false # 明确指定为非草稿
           prerelease: false # 明确指定为非预发布
           artifacts: "*.mrs" # 上传所有.mrs文件
-          body: "Automatically updated ruleset on ${{ github.date }}. Generated from commit ${{ github.sha }}."
+          body: "Automatically updated ruleset on ${{ steps.current-time.outputs.formattedTime }}. Generated from commit ${{ github.sha }}."
           token: ${{ secrets.GITHUB_TOKEN }}
