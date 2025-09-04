@@ -25,8 +25,10 @@ jobs:
       - name: Convert ruleset
         run: |
           # 执行规则集转换
-          ./mihomo convert-ruleset domain yaml personal-direct.yaml personal-direct.mrs
-          ./mihomo convert-ruleset domain yaml personal-proxy.yaml personal-proxy.mrs
+          ./mihomo convert-ruleset domain yaml direct.yaml direct.mrs
+          ./mihomo convert-ruleset domain yaml proxy.yaml proxy.mrs
+          ./mihomo convert-ruleset domain yaml hkban-proxy.yaml hkban-proxy.mrs
+          ./mihomo convert-ruleset domain yaml reject.yaml reject.mrs
 
       - name: Delete existing Release (if exists)
         env:
@@ -39,14 +41,6 @@ jobs:
           else
             echo "No existing release v1.0.0 found"
           fi
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: converted-rulesets
-          path: |
-            *.mrs
-          retention-days: 7
 
       - name: Create new Release and upload assets
         env:
