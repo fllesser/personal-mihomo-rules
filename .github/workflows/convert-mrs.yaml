@@ -1,0 +1,56 @@
+name: Build and Convert Ruleset
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  convert-ruleset:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 允许工作流写入仓库内容（包括管理 Release）
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download and extract mihomo
+        run: |
+          # 下载mihomo二进制文件
+          curl -L -o mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-linux-amd64-alpha-7e9e12c.gz"
+          # 解压文件
+          gunzip mihomo.gz
+          chmod +x mihomo
+
+      - name: Convert ruleset
+        run: |
+          # 执行规则集转换
+          ./mihomo convert-ruleset domain yaml personal-direct.yaml personal-direct.mrs
+          ./mihomo convert-ruleset domain yaml personal-proxy.yaml personal-proxy.mrs
+
+      - name: Delete existing Release (if exists)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # 使用 GitHub CLI 删除指定标签的 Release（如果存在）
+          if gh release view v1.0.0 --repo ${{ github.repository }} > /dev/null 2>&1; then
+            gh release delete v1.0.0 --yes --cleanup-tag
+            echo "Deleted existing release v1.0.0"
+          else
+            echo "No existing release v1.0.0 found"
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: converted-rulesets
+          path: |
+            *.mrs
+          retention-days: 7
+
+      - name: Create new Release and upload assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.0.0 --title "Ruleset Release v1.0.0" --notes "Automated release for converted ruleset"
+          gh release upload v1.0.0 *.mrs
