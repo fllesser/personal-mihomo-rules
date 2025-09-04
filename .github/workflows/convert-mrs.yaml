@@ -39,5 +39,5 @@ jobs:
           draft: false # 明确指定为非草稿
           prerelease: false # 明确指定为非预发布
           artifacts: "*.mrs" # 上传所有.mrs文件
-          body: "Automatically updated ruleset, Generated from commit ${{ github.sha }}."
+          body: "Automatically updated ruleset on ${{ github.date }}. Generated from commit ${{ github.sha }}."
           token: ${{ secrets.GITHUB_TOKEN }}
